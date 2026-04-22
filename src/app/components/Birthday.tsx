@@ -1,36 +1,40 @@
 import Link from "next/link";
 import Image from "next/image";
+
 const Birthday = () => {
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
-      <div className="flex justify-between items-center font-medium">
-        <span className="text-gray-500">Gifts for Campus Sustainaility</span>
+    <div className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 text-sm flex flex-col gap-4">
+      <div className="flex justify-between items-center font-bold">
+        <span className="text-gray-500">Eco-Rewards</span>
       </div>
       {/*USER*/}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Image
-            src="https://images.pexels.com/photos/4366837/pexels-photo-4366837.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={40}
-            height={40}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <span className="font-semibold">Rayan</span>
+      <div className="flex items-center justify-between group">
+        <div className="flex items-center gap-3">
+          <div className="relative w-10 h-10">
+            <Image
+              src="https://images.pexels.com/photos/4366837/pexels-photo-4366837.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt=""
+              fill
+              className="rounded-full object-cover border border-gray-100"
+            />
+          </div>
+          <span className="font-bold text-gray-700 group-hover:text-green-600 transition">Rayan</span>
         </div>
         <div className="flex gap-3 justify-end">
-          <button className="bg-blue-500 text-whit text-xs px-2 py-1 rounded-md">
+          <button className="bg-green-600 hover:bg-green-700 text-white text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-xl transition">
             Send Gift
           </button>
         </div>
       </div>
       {/*UPCOMING*/}
-      <div className="p-4 bg-slate-100 rounded-g flex items-center gap-4 ">
-        <Image src="/gift.png" alt="" width={24} height={24} />
-        <Link href="/" className="flex flex-col gap-1 text-xs">
-          <span className="text-gray-700 font-semibold">Upcoming Presents</span>
-          <span className="text-gray-500">
-            See other 16 Participants for upcoming gifts
+      <div className="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl flex items-center gap-4 border border-green-100">
+        <div className="p-2 bg-white rounded-lg shadow-sm">
+          <Image src="/gift.png" alt="" width={20} height={20} />
+        </div>
+        <Link href="/" className="flex flex-col gap-0.5 text-[11px]">
+          <span className="text-green-800 font-bold uppercase tracking-tight">Sustainability Badges</span>
+          <span className="text-green-600 font-medium">
+            16 others just unlocked new badges
           </span>
         </Link>
       </div>

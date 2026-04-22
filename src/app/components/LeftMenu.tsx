@@ -2,68 +2,53 @@ import Link from "next/link";
 import Image from "next/image";
 import Ad from "./Ad";
 import ProfileCard from "./ProfileCard";
-import "./Leaderboard.css";
-import Leaderboard from "./Leaderboard";
 
-const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
+const LeftMenu = ({ type }: { type: "home" | "profile" | "settings" }) => {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 sticky top-28">
       {type === "home" && <ProfileCard />}
-      <div className="p-4 bg-white rounded-lg shadow-md text-sm text-gray-500 flex flex-col gap-2">
+      <div className="p-2 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-1">
         <Link
           href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
+          className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
         >
-          <Image src="/posts.png" alt="" width={20} height={20} />
-          <span>My Posts</span>
+          <Image src="/home.png" alt="" width={22} height={22} className="group-hover:scale-110 transition-transform" />
+          <span className="font-medium text-gray-700">Home</span>
         </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
+          href="/friends"
+          className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
         >
-          <Image src="/activity.png" alt="" width={20} height={20} />
-          <span>Activity</span>
+          <Image src="/friends.png" alt="" width={22} height={22} className="group-hover:scale-110 transition-transform" />
+          <span className="font-medium text-gray-700">Friends</span>
         </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
+          href="/activity"
+          className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
         >
-          <Image src="/events.png" alt="" width={20} height={20} />
-          <span>Events</span>
+          <Image src="/activity.png" alt="" width={22} height={22} className="group-hover:scale-110 transition-transform" />
+          <span className="font-medium text-gray-700">Explore</span>
         </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
+          href="/notifications"
+          className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
         >
-          <Image src="/videos.png" alt="" width={20} height={20} />
-          <span>Videos</span>
+          <Image src="/notifications.png" alt="" width={22} height={22} className="group-hover:scale-110 transition-transform" />
+          <span className="font-medium text-gray-700">Notifications</span>
         </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
+          href="/leaderboard"
+          className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
         >
-          <Image src="/news.png" alt="" width={20} height={20} />
-          <span>News</span>
+          <Image src="/market.png" alt="" width={22} height={22} className="group-hover:scale-110 transition-transform" />
+          <span className="font-medium text-gray-700">Leaderboard</span>
         </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
+          href="/settings"
+          className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
         >
-          <Image src="/lists.png" alt="" width={20} height={20} />
-          <span>Leaderboard</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-        <Link
-          href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
-        >
-          <Image src="/settings.png" alt="" width={20} height={20} />
-          <span>Settings</span>
+          <Image src="/settings.png" alt="" width={22} height={22} className="group-hover:scale-110 transition-transform" />
+          <span className="font-medium text-gray-700">Settings</span>
         </Link>
       </div>
       <Ad size="sm" />

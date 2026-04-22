@@ -1,17 +1,11 @@
-import Post from "./Post";
+import { getPosts } from "@/lib/actions";
+import FeedList from "./FeedList";
 
-const Feed = () => {
+const Feed = async () => {
+  const initialPosts = await getPosts();
+
   return (
-    <div className="p-4 bg-white shadow-md flex flex-col gap-12 ">
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-    </div>
+    <FeedList initialPosts={initialPosts} />
   );
 };
 

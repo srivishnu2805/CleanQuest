@@ -1,107 +1,40 @@
 import Image from "next/image";
-const Stories = () => {
+import { getStories } from "@/lib/actions";
+import { auth } from "@clerk/nextjs/server";
+import AddStory from "./AddStory";
+
+const Stories = async () => {
+  const { userId: currentUserId } = await auth();
+  const stories = await getStories();
+
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md overflow-scroll text-xs scrollbar-hide">
-      <div className="flex gap-8 w-max w-max">
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/1242764/pexels-photo-1242764.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Srivishnu</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/3784424/pexels-photo-3784424.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Vasanth</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/3550651/pexels-photo-3550651.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Sankar</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/5157280/pexels-photo-5157280.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">SreeKumar</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/2835311/pexels-photo-2835311.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Dr John</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/1694346/pexels-photo-1694346.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Jason</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/8513079/pexels-photo-8513079.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Jim</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/5255228/pexels-photo-5255228.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Samson</span>
-        </div>
-        {/*Story*/}
-        <div className="flex flex-col items-centre gap-2 cursor pointer">
-          <Image
-            src="https://images.pexels.com/photos/8513079/pexels-photo-8513079.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt=""
-            width={80}
-            height={80}
-            className="w-20 h-20 rounded-full ring-2"
-          />
-          <span className="font-medium p-3">Jim</span>
-        </div>
+    <div className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-scroll text-xs scrollbar-hide">
+      <div className="flex gap-6 w-max">
+        <AddStory />
+
+        {stories.map((story) => (
+          <div key={story.id} className="flex flex-col items-center gap-2 cursor-pointer group">
+            <div className="relative w-16 h-16 p-1 rounded-full bg-gradient-to-tr from-yellow-400 to-green-500 group-hover:scale-105 transition duration-200">
+              <div className="relative w-full h-full border-2 border-white rounded-full overflow-hidden">
+                <Image
+                  src={story.img}
+                  alt=""
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <span className="font-semibold text-gray-600 group-hover:text-green-600 transition truncate w-16 text-center">
+              {story.user?.username || "User"}
+            </span>
+          </div>
+        ))}
+        
+        {stories.length === 0 && (
+           <div className="flex items-center text-gray-400 px-4 italic">
+             No active stories. Share your impact!
+           </div>
+        )}
       </div>
     </div>
   );

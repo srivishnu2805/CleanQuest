@@ -1,9 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { userId } = useAuth();
+
   return (
     <div className="">
       <div
@@ -27,12 +30,14 @@ const MobileMenu = () => {
         />
       </div>{" "}
       {isOpen && (
-        <div className="absolute left-0 top-24 w-full h-[calc(100vh-96px)] bg-white flex flex-col items-center justify-center gap-8 font-medium text-xl z-10">
-          <Link href="/">Home</Link>
-          <Link href="/">Friends</Link>
-          <Link href="/">Groups</Link>
-          <Link href="/">Leaderboard</Link>
-          <Link href="/">Login</Link>
+        <div className="absolute left-0 top-24 w-full h-[calc(100vh-96px)] bg-white flex flex-col items-center justify-center gap-8 font-bold text-2xl z-50">
+          <Link href="/" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Home</Link>
+          <Link href="/friends" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Friends</Link>
+          <Link href="/notifications" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Notifications</Link>
+          <Link href="/leaderboard" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Leaderboard</Link>
+          {userId && (
+            <Link href={`/profile/${userId}`} onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Profile</Link>
+          )}
         </div>
       )}
     </div>
