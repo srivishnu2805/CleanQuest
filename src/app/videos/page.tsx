@@ -1,11 +1,21 @@
-import { getMediaPosts } from "@/lib/actions";
+import * as actions from "@/lib/actions";
 import LeftMenu from "../components/LeftMenu";
 import RightMenu from "../components/RightMenu";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function Videos() {
-  const posts = await getMediaPosts();
+  const fetchPosts =
+    (
+      actions as {
+        getMediaPosts?: () => Promise<any[]>;
+        getPosts?: () => Promise<any[]>;
+      }
+    ).getMediaPosts ??
+    (actions as { getPosts?: () => Promise<any[]> }).getPosts;
+
+  const rawPosts = (await fetchPosts?.()) ?? [];
+  const posts = rawPosts.filter((post: { img?: string | null }) => Boolean(post?.img));
 
   return (
     <div className="flex gap-6 pt-6">
@@ -20,7 +30,13 @@ export default async function Videos() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-             {posts.map((post) => (
+             {posts.map((post: {
+               id: string | number;
+               userId: string | number;
+               img?: string | null;
+               likes?: unknown[];
+               commentCount?: number;
+             }) => (
                <Link key={post.id} href={`/profile/${post.userId}`} className="relative aspect-square rounded-lg overflow-hidden group">
                   <Image src={post.img!} fill className="object-cover group-hover:scale-110 transition duration-300" alt=""/>
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition flex items-center justify-center">

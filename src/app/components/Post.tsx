@@ -5,7 +5,7 @@ import Image from "next/image";
 import PostInteraction from "./PostInteraction";
 import Link from "next/link";
 import { useState } from "react";
-import { toggleFollow, blockUser } from "@/lib/actions";
+import { toggleFollow } from "@/lib/actions";
 import { useAuth } from "@clerk/nextjs";
 
 const Post = ({ post }: { post: any }) => {
@@ -24,13 +24,6 @@ const Post = ({ post }: { post: any }) => {
   const handleFollow = async () => {
     await toggleFollow(post.userId);
     setShowMenu(false);
-  };
-
-  const handleBlock = async () => {
-    if (confirm("Are you sure you want to block this user?")) {
-      await blockUser(post.userId);
-      setShowMenu(false);
-    }
   };
 
   return (
@@ -64,7 +57,6 @@ const Post = ({ post }: { post: any }) => {
               {currentUserId !== post.userId && (
                 <>
                   <button onClick={handleFollow} className="text-left p-2 hover:bg-slate-50 rounded-lg text-sm font-medium text-gray-700">Follow User</button>
-                  <button onClick={handleBlock} className="text-left p-2 hover:bg-red-50 rounded-lg text-sm font-medium text-red-500">Block User</button>
                 </>
               )}
               <button onClick={handleCopyLink} className="text-left p-2 hover:bg-slate-50 rounded-lg text-sm font-medium text-gray-700">Copy Link</button>
