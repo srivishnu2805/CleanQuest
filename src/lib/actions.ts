@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "./supabase";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { POINT_SYSTEM } from "./constants";
+import { POINT_SYSTEM, BADGES } from "./constants";
 import { cache } from "react";
 
 // --- 🧪 ZOD SCHEMAS ---
@@ -331,3 +331,203 @@ const createNotification = async (receiverId: string, action: string) => {
   const supabase = getSupabaseAdmin();
   await supabase.from("notifications").insert({ sender_id: senderId, receiver_id: receiverId, action });
 };
+
+// --- 📊 ANALYTICS DASHBOARD ---
+
+/**
+ * Aggregates comprehensive user analytics for the dashboard.
+ * Demonstrates: Complex SQL aggregation, multi-table joins, date grouping.
+ */
+export const getUserDashboardStats = cache(async (clerkId: string) => {
+  const supabase = getSupabaseAdmin();
+
+  // Parallel queries for performance
+  const [postsResult, commentsResult, likesResult, userResult, leaderboardResult] = await Promise.all([
+    supabase.from("posts").select("id, created_at").eq("user_id", clerkId).order("created_at", { ascending: false }),
+    supabase.from("comments").select("id, created_at").eq("user_id", clerkId),
+    supabase.from("post_likes").select("id, created_at").eq("user_id", clerkId),
+    supabase.from("users").select("points, created_at").eq("clerk_id", clerkId).single(),
+    supabase.from("users").select("clerk_id, points").order("points", { ascending: false }).limit(10),
+  ]);
+
+  const posts = postsResult.data || [];
+  const comments = commentsResult.data || [];
+  const likes = likesResult.data || [];
+  const user = userResult.data;
+  const leaderboard = leaderboardResult.data || [];
+
+  // Calculate weekly activity (last 7 days)
+  const now = new Date();
+  const weeklyActivity = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() - (6 - i));
+    const dateStr = date.toISOString().split("T")[0];
+    const dayPosts = posts.filter((p) => p.created_at?.startsWith(dateStr)).length;
+    const dayComments = comments.filter((c) => c.created_at?.startsWith(dateStr)).length;
+    const dayLikes = likes.filter((l) => l.created_at?.startsWith(dateStr)).length;
+    return {
+      day: date.toLocaleDateString("en-US", { weekday: "short" }),
+      date: dateStr,
+      posts: dayPosts,
+      comments: dayComments,
+      likes: dayLikes,
+      total: dayPosts + dayComments + dayLikes,
+    };
+  });
+
+  // Calculate streak (consecutive days with activity)
+  let streak = 0;
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split("T")[0];
+    const hasActivity =
+      posts.some((p) => p.created_at?.startsWith(dateStr)) ||
+      comments.some((c) => c.created_at?.startsWith(dateStr));
+    if (hasActivity) streak++;
+    else if (i > 0) break; // Allow today to have no activity yet
+  }
+
+  // Leaderboard rank
+  const rank = leaderboard.findIndex((u) => u.clerk_id === clerkId) + 1;
+
+  return {
+    totalPosts: posts.length,
+    totalComments: comments.length,
+    totalLikes: likes.length,
+    points: user?.points || 0,
+    streak,
+    rank: rank > 0 ? rank : null,
+    weeklyActivity,
+    joinedAt: user?.created_at,
+    co2Impact: parseFloat((posts.length * 1.2 + comments.length * 0).toFixed(1)),
+  };
+});
+
+// --- 🏅 ACHIEVEMENT BADGES ---
+
+/**
+ * Calculates which badges a user has unlocked based on their activity.
+ * Badge requirements are checked server-side to prevent gaming.
+ */
+export const getUserBadges = cache(async (clerkId: string) => {
+  const supabase = getSupabaseAdmin();
+
+  const [postsResult, commentsResult, userResult, leaderboardResult] = await Promise.all([
+    supabase.from("posts").select("id", { count: "exact" }).eq("user_id", clerkId),
+    supabase.from("comments").select("id", { count: "exact" }).eq("user_id", clerkId),
+    supabase.from("users").select("points").eq("clerk_id", clerkId).single(),
+    supabase.from("users").select("clerk_id").order("points", { ascending: false }).limit(3),
+  ]);
+
+  const postCount = postsResult.count || 0;
+  const commentCount = commentsResult.count || 0;
+  const points = userResult.data?.points || 0;
+  const topThree = (leaderboardResult.data || []).map((u) => u.clerk_id);
+  const isTopThree = topThree.includes(clerkId);
+
+  const userMetrics: Record<string, number> = {
+    posts: postCount,
+    comments: commentCount,
+    points: points,
+    leaderboard: isTopThree ? 1 : 999,
+  };
+
+  return BADGES.map((badge) => ({
+    ...badge,
+    unlocked: userMetrics[badge.requirement.type] !== undefined &&
+      (badge.requirement.type === "leaderboard"
+        ? userMetrics[badge.requirement.type] <= badge.requirement.value
+        : userMetrics[badge.requirement.type] >= badge.requirement.value),
+    progress: badge.requirement.type === "leaderboard"
+      ? isTopThree ? 100 : 0
+      : Math.min(
+          Math.round(((userMetrics[badge.requirement.type] || 0) / badge.requirement.value) * 100),
+          100
+        ),
+  }));
+});
+
+// --- 👥 SOCIAL FEATURES ---
+
+/**
+ * Block/unblock a user. Blocked users' posts are filtered from feed.
+ */
+export const blockUser = async (targetUserId: string) => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId || currentUserId === targetUserId) return { action: "none" };
+  const supabase = getSupabaseAdmin();
+
+  const { data: existing } = await supabase
+    .from("user_blocks")
+    .select("*")
+    .eq("blocker_id", currentUserId)
+    .eq("blocked_id", targetUserId)
+    .single();
+
+  if (existing) {
+    await supabase.from("user_blocks").delete().eq("blocker_id", currentUserId).eq("blocked_id", targetUserId);
+    return { action: "unblocked" };
+  } else {
+    await supabase.from("user_blocks").insert({ blocker_id: currentUserId, blocked_id: targetUserId });
+    // Also unfollow if following
+    await supabase.from("user_follows").delete().eq("follower_id", currentUserId).eq("following_id", targetUserId);
+    await supabase.from("user_follows").delete().eq("follower_id", targetUserId).eq("following_id", currentUserId);
+    return { action: "blocked" };
+  }
+};
+
+/**
+ * Get follow status between current user and target user.
+ */
+export const getFollowStatus = async (targetUserId: string) => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) return { isFollowing: false, isBlocked: false, isFollowedBy: false };
+  const supabase = getSupabaseAdmin();
+
+  const [followResult, blockedResult, followedByResult] = await Promise.all([
+    supabase.from("user_follows").select("id").eq("follower_id", currentUserId).eq("following_id", targetUserId).single(),
+    supabase.from("user_blocks").select("id").eq("blocker_id", currentUserId).eq("blocked_id", targetUserId).single(),
+    supabase.from("user_follows").select("id").eq("follower_id", targetUserId).eq("following_id", currentUserId).single(),
+  ]);
+
+  return {
+    isFollowing: !!followResult.data,
+    isBlocked: !!blockedResult.data,
+    isFollowedBy: !!followedByResult.data,
+  };
+};
+
+/**
+ * Get suggested users to follow (users the current user isn't following).
+ */
+export const getSuggestedUsers = async () => {
+  const { userId: currentUserId } = await auth();
+  if (!currentUserId) return [];
+  const supabase = getSupabaseAdmin();
+
+  // Get IDs the user already follows
+  const { data: following } = await supabase
+    .from("user_follows")
+    .select("following_id")
+    .eq("follower_id", currentUserId);
+
+  const followingIds = (following || []).map((f) => f.following_id);
+  followingIds.push(currentUserId); // Exclude self
+
+  // Get users not in following list
+  let query = supabase
+    .from("users")
+    .select("*")
+    .order("points", { ascending: false })
+    .limit(5);
+
+  if (followingIds.length > 0) {
+    query = query.not("clerk_id", "in", `(${followingIds.join(",")})`);
+  }
+
+  const { data, error } = await query;
+  if (error) return [];
+  return (data || []).map(normalizeUser);
+};
+

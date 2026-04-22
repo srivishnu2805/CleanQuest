@@ -14,29 +14,36 @@ const MobileMenu = () => {
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <div
-          className={`w-6 h-1 bg-green-500 rounded-sm ${
+          className={`w-6 h-1 rounded-sm ${
             isOpen ? "rotate-45" : ""
           } origin-left ease-in-out duration-500`}
+          style={{ backgroundColor: "var(--green-primary)" }}
         />
         <div
-          className={`w-6 h-1 bg-green-500 rounded-sm ${
+          className={`w-6 h-1 rounded-sm ${
             isOpen ? "opacity-0" : ""
           } ease-in-out duration-500`}
+          style={{ backgroundColor: "var(--green-primary)" }}
         />
         <div
-          className={`w-6 h-1 bg-green-500 rounded-sm ${
+          className={`w-6 h-1 rounded-sm ${
             isOpen ? "-rotate-45" : ""
           } origin-left ease-in-out duration-500`}
+          style={{ backgroundColor: "var(--green-primary)" }}
         />
-      </div>{" "}
+      </div>
       {isOpen && (
-        <div className="absolute left-0 top-24 w-full h-[calc(100vh-96px)] bg-white flex flex-col items-center justify-center gap-8 font-bold text-2xl z-50">
-          <Link href="/" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Home</Link>
-          <Link href="/friends" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Friends</Link>
-          <Link href="/notifications" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Notifications</Link>
-          <Link href="/leaderboard" onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Leaderboard</Link>
+        <div
+          className="absolute left-0 top-24 w-full h-[calc(100vh-96px)] flex flex-col items-center justify-center gap-8 font-bold text-2xl z-50"
+          style={{ backgroundColor: "var(--bg-secondary)", color: "var(--text-primary)" }}
+        >
+          <Link href="/" onClick={() => setIsOpen(false)} className="hover:text-emerald-500 transition">Home</Link>
+          <Link href="/dashboard" onClick={() => setIsOpen(false)} className="hover:text-emerald-500 transition">Dashboard</Link>
+          <Link href="/friends" onClick={() => setIsOpen(false)} className="hover:text-emerald-500 transition">Friends</Link>
+          <Link href="/notifications" onClick={() => setIsOpen(false)} className="hover:text-emerald-500 transition">Notifications</Link>
+          <Link href="/leaderboard" onClick={() => setIsOpen(false)} className="hover:text-emerald-500 transition">Leaderboard</Link>
           {userId && (
-            <Link href={`/profile/${userId}`} onClick={() => setIsOpen(false)} className="hover:text-green-600 transition">Profile</Link>
+            <Link href={`/profile/${userId}`} onClick={() => setIsOpen(false)} className="hover:text-emerald-500 transition">Profile</Link>
           )}
         </div>
       )}

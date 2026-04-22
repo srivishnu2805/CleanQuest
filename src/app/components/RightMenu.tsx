@@ -19,14 +19,14 @@ const RightMenu = ({ userId }: { userId?: string }) => {
       
       {!userId && (
         <div className="flex flex-col gap-6">
-          <Suspense fallback={<div className="h-32 bg-white rounded-2xl animate-pulse"></div>}>
+          <Suspense fallback={<div className="h-32 rounded-2xl animate-pulse" style={{ backgroundColor: "var(--bg-secondary)" }}></div>}>
              <ImpactStats />
           </Suspense>
           <FriendRequest />
           <Birthday />
           <Ad size={"md"} />
           
-          <div className="p-4 flex flex-wrap gap-2 text-gray-300 text-[10px] uppercase font-bold">
+          <div className="p-4 flex flex-wrap gap-2 text-[10px] uppercase font-bold" style={{ color: "var(--text-tertiary)" }}>
             <Link href="/" className="hover:underline">About</Link>
             <span>•</span>
             <Link href="/" className="hover:underline">Help</Link>
@@ -35,14 +35,12 @@ const RightMenu = ({ userId }: { userId?: string }) => {
             <span>•</span>
             <Link href="/" className="hover:underline">API</Link>
             <span>•</span>
-            <Link href="/" className="hover:underline">Jobs</Link>
-            <span>•</span>
             <Link href="/" className="hover:underline">Privacy</Link>
             <span>•</span>
             <Link href="/" className="hover:underline">Terms</Link>
           </div>
-          <div className="px-4 text-gray-300 text-[10px] uppercase font-bold">
-            © 2024 CLEANQUEST FROM UNIVERSITY
+          <div className="px-4 text-[10px] uppercase font-bold" style={{ color: "var(--text-tertiary)" }}>
+            © {new Date().getFullYear()} CLEANQUEST
           </div>
         </div>
       )}

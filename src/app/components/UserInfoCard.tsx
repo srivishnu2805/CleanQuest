@@ -7,25 +7,34 @@ const UserInfoCard = async ({ userId }: { userId: string }) => {
   const user = await getUserProfile(userId);
   const { userId: currentUserId } = await auth();
 
-  if (!user) return <div className="p-4 bg-white rounded-lg shadow-md">User not found.</div>;
-
-  const isFollowing = user.followers?.includes(currentUserId) || false;
+  if (!user) return (
+    <div className="p-4 rounded-2xl" style={{ backgroundColor: "var(--bg-secondary)", border: "1px solid var(--border-color)" }}>
+      User not found.
+    </div>
+  );
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
+    <div
+      className="p-4 rounded-2xl text-sm flex flex-col gap-4"
+      style={{
+        backgroundColor: "var(--bg-secondary)",
+        border: "1px solid var(--border-color)",
+        boxShadow: "var(--shadow-sm)",
+      }}
+    >
       {/*TOP*/}
       <div className="flex justify-between items-center font-medium">
-        <span className="text-gray-500">User Information</span>
+        <span style={{ color: "var(--text-secondary)" }}>User Information</span>
         {currentUserId === userId && (
-          <Link href="/settings" className="text-blue-500 text-xs">
+          <Link href="/settings" className="text-xs" style={{ color: "var(--green-primary)" }}>
             Edit Profile
           </Link>
         )}
       </div>
       {/*BOTTOM*/}
-      <div className="flex flex-col gap-4 text-gray-500">
+      <div className="flex flex-col gap-4" style={{ color: "var(--text-secondary)" }}>
         <div className="flex items-center gap-2">
-          <span className="text-xl text-black">{user.displayName || user.username}</span>
+          <span className="text-xl" style={{ color: "var(--text-primary)" }}>{user.displayName || user.username}</span>
           <span className="text-sm">@{user.username}</span>
         </div>
         <p>
@@ -35,7 +44,7 @@ const UserInfoCard = async ({ userId }: { userId: string }) => {
           <div className="flex items-center gap-2">
             <Image src="/school.png" alt="" width={16} height={16} />
             <span>
-              Studied at <b>{user.school}</b>
+              Studied at <b style={{ color: "var(--text-primary)" }}>{user.school}</b>
             </span>
           </div>
         )}
@@ -43,13 +52,13 @@ const UserInfoCard = async ({ userId }: { userId: string }) => {
           <div className="flex items-center gap-2">
             <Image src="/work.png" alt="" width={16} height={16} />
             <span>
-              Works at <b>{user.work}</b>
+              Works at <b style={{ color: "var(--text-primary)" }}>{user.work}</b>
             </span>
           </div>
         )}
         <div className="flex items-center justify-between">
           <div className="flex gap-1 items-center">
-             <span className="font-bold text-green-600">{user.points || 0}</span>
+             <span className="font-bold" style={{ color: "var(--green-primary)" }}>{user.points || 0}</span>
              <span>Impact Points</span>
           </div>
           <div className="flex gap-1 items-center">
@@ -63,8 +72,8 @@ const UserInfoCard = async ({ userId }: { userId: string }) => {
             "use server"
             await toggleFollow(userId)
           }}>
-            <button className={`w-full py-2 rounded-md text-white font-semibold transition ${isFollowing ? "bg-gray-300 hover:bg-gray-400" : "bg-blue-500 hover:bg-blue-600"}`}>
-              {isFollowing ? "Following" : "Follow"}
+            <button className="w-full py-2.5 rounded-xl text-white font-semibold transition bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-md shadow-emerald-500/20">
+              Follow
             </button>
           </form>
         )}

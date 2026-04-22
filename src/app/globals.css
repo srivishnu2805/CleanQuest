@@ -2,60 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- CSS Custom Properties for Theming --- */
+:root {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-hover: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(226, 232, 240, 0.8);
+  --green-primary: #10b981;
+  --green-secondary: #059669;
+  --green-bg: #ecfdf5;
+  --green-text: #065f46;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-hover: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --border-color: #334155;
+  --border-subtle: #1e293b;
+  --card-bg: rgba(30, 41, 59, 0.9);
+  --card-border: rgba(51, 65, 85, 0.8);
+  --green-primary: #34d399;
+  --green-secondary: #10b981;
+  --green-bg: rgba(16, 185, 129, 0.1);
+  --green-text: #6ee7b7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.2);
+}
+
 @layer base {
   body {
-    @apply transition-colors duration-300 bg-[#f8fafc] text-slate-900;
+    @apply transition-colors duration-300;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* --- Scrollbar --- */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { scrollbar-width: none; }
 
-.scrollbar-hide {
-  scrollbar-width: none;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-/* Custom Scrollbar for modern look */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Glassmorphism effect for cards */
+/* --- Glassmorphism Cards --- */
 .glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-sm);
 }
 
-/* Smooth transitions for hover effects */
+/* --- Themed Card --- */
+.themed-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.themed-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Hover Scale --- */
 .hover-scale {
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
 }
-
 .hover-scale:hover {
-  transform: scale(1.02);
+  transform: scale(1.01);
+  box-shadow: var(--shadow-md);
 }
 
-/* Custom underline for nav links */
-.nav-link {
-  position: relative;
-}
-
+/* --- Nav Link Underline --- */
+.nav-link { position: relative; }
 .nav-link::after {
   content: '';
   position: absolute;
@@ -63,10 +103,161 @@
   height: 2px;
   bottom: -4px;
   left: 0;
-  background-color: #10b981;
+  background: linear-gradient(90deg, var(--green-primary), #06b6d4);
   transition: width 0.3s ease;
+  border-radius: 2px;
+}
+.nav-link:hover::after { width: 100%; }
+
+/* --- Landing Page Animations --- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(2deg); }
+  66% { transform: translateY(6px) rotate(-1deg); }
 }
 
-.nav-link:hover::after {
-  width: 100%;
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+  50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.3); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(50px) scale(0.5); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes badge-unlock {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-delayed { animation: float 6s ease-in-out infinite 2s; }
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-fade-in-scale { animation: fadeInScale 0.6s ease-out forwards; }
+.animate-slide-in-left { animation: slideInLeft 0.6s ease-out forwards; }
+.animate-gradient { animation: gradientShift 8s ease infinite; background-size: 200% 200%; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-shimmer { animation: shimmer 2s linear infinite; background-size: 200% 100%; }
+.animate-badge-unlock { animation: badge-unlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+.animation-delay-100 { animation-delay: 0.1s; }
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-300 { animation-delay: 0.3s; }
+.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-500 { animation-delay: 0.5s; }
+.animation-delay-600 { animation-delay: 0.6s; }
+
+/* --- Particle System --- */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: particle-float linear infinite;
+  pointer-events: none;
+}
+
+/* --- Progress Bar Animation --- */
+.progress-bar-animated {
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Chart Bars --- */
+.chart-bar {
+  transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: bottom;
+}
+
+/* --- Badge Styles --- */
+.badge-card {
+  transition: all 0.3s ease;
+}
+.badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.badge-locked {
+  filter: grayscale(100%);
+  opacity: 0.4;
+}
+
+/* --- Streak Calendar --- */
+.streak-dot {
+  transition: all 0.2s ease;
+}
+.streak-dot:hover {
+  transform: scale(1.5);
+}
+
+/* --- Landing Page Gradient Text --- */
+.gradient-text {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Stat Card Glow --- */
+.stat-glow-green { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+.stat-glow-blue { box-shadow: 0 0 30px rgba(6, 182, 212, 0.15); }
+.stat-glow-purple { box-shadow: 0 0 30px rgba(139, 92, 246, 0.15); }
+
+/* --- Donut Chart --- */
+.donut-chart {
+  border-radius: 50%;
+  transition: all 1s ease;
+}
+
+/* --- Theme Toggle --- */
+.theme-toggle {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  top: 2px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }

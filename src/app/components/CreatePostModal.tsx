@@ -1,87 +1,190 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
-import { UploadDropzone } from "@/lib/uploadthing";
 import { createPost } from "@/lib/actions";
+import { useUser } from "@clerk/nextjs";
 
-const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const { user } = useUser();
   const [desc, setDesc] = useState("");
   const [img, setImg] = useState<string | null>(null);
   const [isPosting, setIsPosting] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [step, setStep] = useState<"upload" | "caption">("upload");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImg(e.target?.result as string);
+      setStep("caption");
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async () => {
-    if (!desc) return;
+    if (!desc.trim()) return;
     setIsPosting(true);
     try {
-      // Server actions in Next.js 15 with Zod require a plain object or FormData
-      const result = await createPost({ desc, img });
+      const result = await createPost({ desc: desc.trim(), img });
       if (result.success) {
         setDesc("");
         setImg(null);
+        setStep("upload");
         onClose();
-      } else {
-        alert("Failed to create post: " + result.error);
       }
     } catch (err) {
       console.error(err);
-      alert("An unexpected error occurred.");
     } finally {
       setIsPosting(false);
     }
   };
 
+  const handleClose = () => {
+    setDesc("");
+    setImg(null);
+    setStep("upload");
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-lg overflow-hidden flex flex-col">
-        <div className="p-4 border-b flex items-center justify-between">
-          <button onClick={onClose} className="text-gray-500 hover:text-black">Cancel</button>
-          <h2 className="font-bold">Create New Post</h2>
-          <button 
-            onClick={handleSubmit} 
-            disabled={isPosting || !desc}
-            className="text-blue-500 font-bold disabled:text-blue-200"
+    <div className="fixed inset-0 bg-black/70 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" onClick={handleClose}>
+      <div
+        className="rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in-scale"
+        style={{ backgroundColor: "var(--bg-secondary)", border: "1px solid var(--border-color)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4" style={{ borderBottom: "1px solid var(--border-color)" }}>
+          {step === "caption" ? (
+            <button onClick={() => { setStep("upload"); setImg(null); }} className="transition hover:opacity-70">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-primary)" }}>
+                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+              </svg>
+            </button>
+          ) : (
+            <div className="w-5" />
+          )}
+          <h2 className="font-bold text-base" style={{ color: "var(--text-primary)" }}>Create new post</h2>
+          {step === "caption" ? (
+            <button
+              onClick={handleSubmit}
+              disabled={isPosting || !desc.trim()}
+              className="font-bold text-sm transition hover:opacity-70 disabled:opacity-30"
+              style={{ color: "var(--green-primary)" }}
+            >
+              {isPosting ? "Sharing..." : "Share"}
+            </button>
+          ) : (
+            <button onClick={handleClose} className="transition hover:opacity-70">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-tertiary)" }}>
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {step === "upload" ? (
+          /* Upload Step */
+          <div
+            className={`flex flex-col items-center justify-center p-12 transition-colors ${dragActive ? "bg-emerald-500/5" : ""}`}
+            style={{ minHeight: "380px" }}
+            onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={(e) => { e.preventDefault(); setDragActive(false); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); }}
           >
-            {isPosting ? "Sharing..." : "Share"}
-          </button>
-        </div>
-        
-        <div className="flex flex-col md:flex-row h-[500px]">
-          <div className="flex-1 bg-gray-50 flex items-center justify-center border-r relative">
-            {img ? (
-              <Image src={img} fill className="object-cover" alt="Preview" />
-            ) : (
-              <UploadDropzone
-                endpoint="imageUploader"
-                onClientUploadComplete={(res) => {
-                  setImg(res[0].url);
-                }}
-                onUploadError={(error: Error) => {
-                  alert(`ERROR! ${error.message}`);
-                }}
-                className="ut-label:text-blue-500 ut-button:bg-blue-500 border-none"
-              />
-            )}
+            <div className="mb-6">
+              <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-tertiary)" }}>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+            <p className="text-lg font-medium mb-2" style={{ color: "var(--text-primary)" }}>
+              Drag photos here
+            </p>
+            <p className="text-sm mb-6" style={{ color: "var(--text-tertiary)" }}>
+              or click the button below to select
+            </p>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition shadow-lg shadow-emerald-500/20"
+            >
+              Select from computer
+            </button>
+            <button
+              onClick={() => setStep("caption")}
+              className="mt-4 text-sm font-medium transition hover:opacity-70"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              Skip — post without image
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
+            />
+          </div>
+        ) : (
+          /* Caption Step */
+          <div className="flex flex-col md:flex-row" style={{ minHeight: "380px" }}>
+            {/* Image Preview */}
             {img && (
-              <button 
-                onClick={() => setImg(null)}
-                className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-2 text-xs"
-              >
-                Change
-              </button>
+              <div className="relative w-full md:w-1/2 aspect-square md:aspect-auto flex-shrink-0" style={{ backgroundColor: "var(--bg-tertiary)" }}>
+                <Image src={img} fill className="object-cover" alt="Preview" />
+              </div>
             )}
+
+            {/* Caption Area */}
+            <div className={`flex flex-col flex-1 ${img ? "" : "w-full"}`}>
+              {/* User */}
+              <div className="flex items-center gap-3 p-4 pb-2">
+                <Image
+                  src={user?.imageUrl || "/noAvatar.png"}
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+                <span className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>
+                  {user?.username || user?.firstName || "You"}
+                </span>
+              </div>
+
+              {/* Caption Input */}
+              <div className="flex-1 px-4">
+                <textarea
+                  placeholder="Write a caption about your sustainability action..."
+                  className="w-full h-full outline-none resize-none text-sm bg-transparent min-h-[120px]"
+                  style={{ color: "var(--text-primary)" }}
+                  value={desc}
+                  onChange={(e) => setDesc(e.target.value)}
+                  maxLength={1000}
+                  autoFocus
+                />
+              </div>
+
+              {/* Character count */}
+              <div className="px-4 pb-4 flex items-center justify-between">
+                <span className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                  🌿 Share your impact with the community
+                </span>
+                <span
+                  className="text-[11px] font-mono"
+                  style={{ color: desc.length > 900 ? "#ef4444" : "var(--text-tertiary)" }}
+                >
+                  {desc.length}/1000
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="w-full md:w-64 p-4 flex flex-col">
-            <textarea
-              placeholder="Write a caption..."
-              className="flex-1 outline-none resize-none text-sm"
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-            ></textarea>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

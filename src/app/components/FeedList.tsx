@@ -52,23 +52,35 @@ const FeedList = ({ initialPosts }: { initialPosts: any[] }) => {
   }, [cursor, hasMore, isLoading]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {posts.map((post) => (
         <Post key={post.id} post={post} />
       ))}
       
       {hasMore && (
         <div ref={observerTarget} className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: "var(--green-primary)" }}></div>
         </div>
       )}
       
       {!hasMore && posts.length > 0 && (
-        <div className="text-center text-gray-500 py-8">You've reached the end of the quest! 🌿</div>
+        <div className="text-center py-8" style={{ color: "var(--text-tertiary)" }}>
+          You&apos;ve reached the end of the quest! 🌿
+        </div>
       )}
       
       {posts.length === 0 && !isLoading && (
-        <div className="text-gray-500 text-center py-8">No posts yet. Be the first to post!</div>
+        <div
+          className="text-center py-16 rounded-2xl"
+          style={{
+            color: "var(--text-tertiary)",
+            backgroundColor: "var(--bg-secondary)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          <p className="text-4xl mb-4">🌱</p>
+          <p className="font-medium">No posts yet. Be the first to share your impact!</p>
+        </div>
       )}
     </div>
   );

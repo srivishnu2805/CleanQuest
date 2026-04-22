@@ -2,9 +2,16 @@ import Image from "next/image";
 
 const Ad = ({ size }: { size: "sm" | "md" | "lg" }) => {
   return (
-    <div className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 text-sm">
+    <div
+      className="p-4 rounded-2xl text-sm"
+      style={{
+        backgroundColor: "var(--bg-secondary)",
+        border: "1px solid var(--border-color)",
+        boxShadow: "var(--shadow-sm)",
+      }}
+    >
       {/* TOP */}
-      <div className="flex items-center justify-between text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+      <div className="flex items-center justify-between font-bold uppercase tracking-wider text-[10px]" style={{ color: "var(--text-tertiary)" }}>
         <span>Sponsored</span>
         <Image src="/more.png" alt="" width={16} height={16} className="opacity-50 cursor-pointer" />
       </div>
@@ -33,16 +40,22 @@ const Ad = ({ size }: { size: "sm" | "md" | "lg" }) => {
               className="rounded-full object-cover"
             />
           </div>
-          <span className="text-green-600 font-bold">Green Campus Initiative</span>
+          <span className="font-bold" style={{ color: "var(--green-primary)" }}>Green Campus Initiative</span>
         </div>
-        <p className={size === "sm" ? "text-xs text-gray-500" : "text-sm text-gray-600"}>
+        <p style={{ color: "var(--text-secondary)" }} className={size === "sm" ? "text-xs" : "text-sm"}>
           {size === "sm"
             ? "Fostering a healthy, organized, and inspiring environment for all students."
             : size === "md"
             ? "Join our mission to transform our university into a global leader in sustainability through smart waste management."
             : "Join our mission to transform our university into a global leader in sustainability through smart waste management and renewable energy solutions. Together, we can make a difference."}
         </p>
-        <button className="bg-slate-100 hover:bg-slate-200 text-gray-600 p-2 text-[11px] font-bold uppercase tracking-widest rounded-xl transition">
+        <button
+          className="p-2 text-[11px] font-bold uppercase tracking-widest rounded-xl transition"
+          style={{
+            backgroundColor: "var(--bg-tertiary)",
+            color: "var(--text-secondary)",
+          }}
+        >
           Learn more
         </button>
       </div>
