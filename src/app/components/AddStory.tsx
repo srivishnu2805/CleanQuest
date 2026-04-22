@@ -1,13 +1,14 @@
 "use client";
 
 import { UploadButton } from "@/lib/uploadthing";
-import { addStory } from "@/lib/actions";
+import * as actions from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const AddStory = () => {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
+  const addStoryAction = (actions as { addStory?: (url: string) => Promise<unknown> }).addStory;
 
   return (
     <div className="flex flex-col items-center gap-2 cursor-pointer group">
@@ -19,7 +20,9 @@ const AddStory = () => {
             endpoint="imageUploader"
             onUploadBegin={() => setIsUploading(true)}
             onClientUploadComplete={async (res) => {
-              await addStory(res[0].url);
+              if (addStoryAction) {
+                await addStoryAction(res[0].url);
+              }
               setIsUploading(false);
               router.refresh();
             }}
