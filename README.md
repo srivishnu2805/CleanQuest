@@ -2,8 +2,8 @@
 
 <div align="center">
 
-![CI Pipeline](https://github.com/srivishnu2805/CleanQuest/actions/workflows/ci.yml/badge.svg)
-![CodeQL](https://github.com/srivishnu2805/CleanQuest/actions/workflows/codeql.yml/badge.svg)
+[![CI Pipeline](https://img.shields.io/github/actions/workflow/status/srivishnu2805/CleanQuest/ci.yml?branch=main&style=for-the-badge&label=CI%20Pipeline&logo=githubactions)](https://github.com/srivishnu2805/CleanQuest/actions/workflows/ci.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/srivishnu2805/CleanQuest/codeql.yml?branch=main&style=for-the-badge&label=CodeQL&logo=github)](https://github.com/srivishnu2805/CleanQuest/actions/workflows/codeql.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
