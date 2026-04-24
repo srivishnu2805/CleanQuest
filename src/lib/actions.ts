@@ -82,7 +82,7 @@ export const getUserProfile = cache(async (clerkId: string) => {
 export const getCampusStats = cache(async () => {
   const supabase = getSupabaseAdmin();
   const { data: userStats } = await supabase.from("users").select("points");
-  const totalPoints = userStats?.reduce((sum, u) => sum + (u.points || 0), 0) || 0;
+  const totalPoints = userStats?.reduce((sum: number, u: any) => sum + (u.points || 0), 0) || 0;
   const totalActions = totalPoints / 5; 
   return {
     totalActions: Math.floor(totalActions),
@@ -102,7 +102,7 @@ export const getPosts = async (cursor?: number) => {
       .from("user_blocks")
       .select("blocked_id")
       .eq("blocker_id", currentUserId);
-    if (blocks) blockedUserIds = blocks.map(b => b.blocked_id);
+    if (blocks) blockedUserIds = blocks.map((b: any) => b.blocked_id);
   }
   
   let query = supabase
@@ -126,20 +126,34 @@ export const getPosts = async (cursor?: number) => {
   if (error) return [];
 
   let likedPostIds = new Set();
+  let savedPostIds = new Set();
+  
   if (currentUserId && posts?.length > 0) {
-    const postIds = posts.map(p => p.id);
+    const postIds = posts.map((p: any) => p.id);
+    
+    // Fetch likes
     const { data: userLikes } = await supabase
       .from("post_likes")
       .select("post_id")
       .eq("user_id", currentUserId)
       .in("post_id", postIds);
     
-    if (userLikes) likedPostIds = new Set(userLikes.map(l => l.post_id));
+    if (userLikes) likedPostIds = new Set(userLikes.map((l: any) => l.post_id));
+    
+    // Fetch saves
+    const { data: userSaves } = await supabase
+      .from("saved_posts")
+      .select("post_id")
+      .eq("user_id", currentUserId)
+      .in("post_id", postIds);
+      
+    if (userSaves) savedPostIds = new Set(userSaves.map((s: any) => s.post_id));
   }
 
-  return (posts || []).map(post => ({
+  return (posts || []).map((post: any) => ({
     ...normalizePost(post),
-    isLiked: likedPostIds.has(post.id)
+    isLiked: likedPostIds.has(post.id),
+    isSaved: savedPostIds.has(post.id)
   }));
 };
 
@@ -277,11 +291,40 @@ export const getStories = async () => {
   const supabase = getSupabaseAdmin();
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const { data } = await supabase.from("stories").select(`*, user:users!stories_user_id_fkey(username, avatar, clerk_id)`).gt("created_at", yesterday).order("created_at", { ascending: false });
-  if (!data?.length) return [
-    { id: 'd1', img: "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg", user: { username: "EcoWarrior", avatar: "https://images.pexels.com/photos/4207707/pexels-photo-4207707.jpeg" } },
-    { id: 'd2', img: "https://images.pexels.com/photos/3900509/pexels-photo-3900509.jpeg", user: { username: "GreenLeaf", avatar: "https://images.pexels.com/photos/3550651/pexels-photo-3550651.jpeg" } },
+  
+  const userStories = (data || []).map((s: any) => ({ ...s, user: normalizeUser(s.user) }));
+
+  if (userStories.length > 0) return userStories;
+  
+  return [
+    { 
+      id: 'hq-1', 
+      img: "https://images.pexels.com/photos/414837/pexels-photo-414837.jpeg", 
+      user: { 
+        username: "Impact HQ", 
+        avatar: "https://images.pexels.com/photos/373543/pexels-photo-373543.jpeg" 
+      } 
+    },
+    { 
+      id: 'hq-2', 
+      img: "https://images.pexels.com/photos/761297/pexels-photo-761297.jpeg", 
+      user: { 
+        username: "Global Quest", 
+        avatar: "https://images.pexels.com/photos/60597/dahlia-red-blossom-bloom-60597.jpeg" 
+      } 
+    }
   ];
-  return data.map((s: any) => ({ ...s, user: normalizeUser(s.user) }));
+};
+
+export const addStory = async (img: string) => {
+  const { userId } = await auth();
+  if (!userId) return { success: false, error: "Unauthorized" };
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("stories").insert({ user_id: userId, img });
+  if (error) return { success: false, error: error.message };
+  await awardPoints(userId, "STORY");
+  revalidatePath("/");
+  return { success: true };
 };
 
 export const getEvents = async () => {
@@ -362,9 +405,9 @@ export const getUserDashboardStats = cache(async (clerkId: string) => {
     const date = new Date(now);
     date.setDate(date.getDate() - (6 - i));
     const dateStr = date.toISOString().split("T")[0];
-    const dayPosts = posts.filter((p) => p.created_at?.startsWith(dateStr)).length;
-    const dayComments = comments.filter((c) => c.created_at?.startsWith(dateStr)).length;
-    const dayLikes = likes.filter((l) => l.created_at?.startsWith(dateStr)).length;
+    const dayPosts = posts.filter((p: any) => p.created_at?.startsWith(dateStr)).length;
+    const dayComments = comments.filter((c: any) => c.created_at?.startsWith(dateStr)).length;
+    const dayLikes = likes.filter((l: any) => l.created_at?.startsWith(dateStr)).length;
     return {
       day: date.toLocaleDateString("en-US", { weekday: "short" }),
       date: dateStr,
@@ -382,14 +425,14 @@ export const getUserDashboardStats = cache(async (clerkId: string) => {
     date.setDate(date.getDate() - i);
     const dateStr = date.toISOString().split("T")[0];
     const hasActivity =
-      posts.some((p) => p.created_at?.startsWith(dateStr)) ||
-      comments.some((c) => c.created_at?.startsWith(dateStr));
+      posts.some((p: any) => p.created_at?.startsWith(dateStr)) ||
+      comments.some((c: any) => c.created_at?.startsWith(dateStr));
     if (hasActivity) streak++;
     else if (i > 0) break; // Allow today to have no activity yet
   }
 
   // Leaderboard rank
-  const rank = leaderboard.findIndex((u) => u.clerk_id === clerkId) + 1;
+  const rank = leaderboard.findIndex((u: any) => u.clerk_id === clerkId) + 1;
 
   return {
     totalPosts: posts.length,
@@ -423,7 +466,7 @@ export const getUserBadges = cache(async (clerkId: string) => {
   const postCount = postsResult.count || 0;
   const commentCount = commentsResult.count || 0;
   const points = userResult.data?.points || 0;
-  const topThree = (leaderboardResult.data || []).map((u) => u.clerk_id);
+  const topThree = (leaderboardResult.data || []).map((u: any) => u.clerk_id);
   const isTopThree = topThree.includes(clerkId);
 
   const userMetrics: Record<string, number> = {
@@ -512,7 +555,7 @@ export const getSuggestedUsers = async () => {
     .select("following_id")
     .eq("follower_id", currentUserId);
 
-  const followingIds = (following || []).map((f) => f.following_id);
+  const followingIds = (following || []).map((f: any) => f.following_id);
   followingIds.push(currentUserId); // Exclude self
 
   // Get users not in following list
@@ -531,3 +574,73 @@ export const getSuggestedUsers = async () => {
   return (data || []).map(normalizeUser);
 };
 
+// --- ❤️ COMMENT LIKES ---
+
+/**
+ * Toggle like on a comment (persisted to DB).
+ * Follows the same pattern as toggleLike for posts.
+ */
+export const toggleCommentLike = async (commentId: string) => {
+  const { userId } = await auth();
+  if (!userId) return { liked: false };
+  const supabase = getSupabaseAdmin();
+
+  const { data: existing } = await supabase
+    .from("comment_likes")
+    .select("id")
+    .eq("comment_id", commentId)
+    .eq("user_id", userId)
+    .single();
+
+  if (existing) {
+    await supabase.from("comment_likes").delete().eq("comment_id", commentId).eq("user_id", userId);
+    return { liked: false };
+  } else {
+    await supabase.from("comment_likes").insert({ comment_id: commentId, user_id: userId });
+    return { liked: true };
+  }
+};
+
+/**
+ * Get liked comment IDs for the current user (batch fetch for a post's comments).
+ */
+export const getCommentLikesByUser = async (commentIds: string[]) => {
+  const { userId } = await auth();
+  if (!userId || commentIds.length === 0) return new Set<string>();
+  const supabase = getSupabaseAdmin();
+
+  const { data } = await supabase
+    .from("comment_likes")
+    .select("comment_id")
+    .eq("user_id", userId)
+    .in("comment_id", commentIds);
+
+  return new Set((data || []).map((d: any) => d.comment_id));
+};
+
+// --- 🔖 SAVED POSTS ---
+
+/**
+ * Toggle save (bookmark) on a post
+ */
+export const toggleSavePost = async (postId: string) => {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+  
+  const supabase = getSupabaseAdmin();
+
+  const { data: existing } = await supabase
+    .from("saved_posts")
+    .select("id")
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .single();
+
+  if (existing) {
+    await supabase.from("saved_posts").delete().eq("post_id", postId).eq("user_id", userId);
+    return { saved: false };
+  } else {
+    await supabase.from("saved_posts").insert({ post_id: postId, user_id: userId });
+    return { saved: true };
+  }
+};

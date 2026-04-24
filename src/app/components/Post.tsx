@@ -83,8 +83,9 @@ const Post = ({ post }: { post: any }) => {
               width={36}
               height={36}
               alt=""
-              className="w-9 h-9 rounded-full object-cover ring-2 ring-offset-1"
-              style={{ ringColor: "var(--green-primary)", ringOffsetColor: "var(--bg-secondary)" }}
+              className="w-9 h-9 rounded-full object-cover"
+              style={{ boxShadow: "0 0 0 2px var(--bg-secondary), 0 0 0 4px var(--green-primary)" }}
+              sizes="36px"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -164,6 +165,7 @@ const Post = ({ post }: { post: any }) => {
             fill
             className="object-cover"
             alt=""
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
       )}
@@ -174,6 +176,7 @@ const Post = ({ post }: { post: any }) => {
           postId={post.id}
           initialLikeCount={post.likeCount || 0}
           initialIsLiked={post.isLiked || false}
+          initialIsSaved={post.isSaved || false}
           commentCount={post.commentCount || 0}
         />
       </div>

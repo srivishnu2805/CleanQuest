@@ -31,8 +31,8 @@ const ProfileCard = async () => {
           alt=""
           width={48}
           height={48}
-          className="rounded-full object-cover w-12 h-12 absolute left-0 right-0 m-auto -bottom-6 ring-4 z-10"
-          style={{ ringColor: "var(--bg-secondary)" }}
+          className="rounded-full object-cover w-12 h-12 absolute left-0 right-0 m-auto -bottom-6 z-10"
+          style={{ boxShadow: "0 0 0 4px var(--bg-secondary)" }}
         />
       </div>
       <div className="h-24 flex flex-col gap-2 items-center mt-2">

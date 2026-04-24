@@ -1,10 +1,24 @@
-import { getNews } from "@/lib/actions";
 import LeftMenu from "../components/LeftMenu";
 import RightMenu from "../components/RightMenu";
 import Image from "next/image";
 
 export default async function News() {
-  const news = await getNews();
+  const news = [
+    {
+      id: "1",
+      date: "Oct 24, 2024",
+      title: "New Solar Panels Installed on Library Roof",
+      desc: "The campus has successfully installed new solar panels on the main library, expected to reduce the building's carbon footprint by 30%.",
+      img: "https://images.pexels.com/photos/9875150/pexels-photo-9875150.jpeg"
+    },
+    {
+      id: "2",
+      date: "Oct 22, 2024",
+      title: "Campus-Wide Recycling Initiative Launched",
+      desc: "A new recycling initiative has been rolled out across all dorms. Special bins for electronic waste are now available.",
+      img: "https://images.pexels.com/photos/3212154/pexels-photo-3212154.jpeg"
+    }
+  ];
 
   return (
     <div className="flex gap-6 pt-6">
@@ -19,7 +33,7 @@ export default async function News() {
           </div>
           
           <div className="flex flex-col gap-4">
-             {news.map((item) => (
+             {news.map((item: any) => (
                <div key={item.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-6">
                   <div className="relative w-full md:w-48 h-48 md:h-auto rounded-xl overflow-hidden flex-shrink-0">
                      <Image src={item.img} fill className="object-cover" alt=""/>

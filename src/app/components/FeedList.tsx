@@ -10,6 +10,34 @@ const FeedList = ({ initialPosts }: { initialPosts: any[] }) => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const observerTarget = useRef(null);
+  
+  useEffect(() => {
+    // Import dynamically to avoid SSR issues with supabase client
+    import('@/lib/supabase').then(({ supabase }) => {
+      if (!supabase) return;
+      
+      const channel = supabase
+        .channel(`posts_feed_${Date.now()}`)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, async (payload: any) => {
+          // A new post was created! We could fetch the full post details here and unshift it
+          // For a simple UX, we show a "New posts available" toast or just fetch the newest post
+          console.log('New post received via realtime!', payload);
+          // To keep it simple, we just refetch the newest page and prepend new ones
+          const newPosts = await getPosts(0);
+          setPosts((prev: any[]) => {
+            // Filter out ones we already have
+            const existingIds = new Set(prev.map((p: any) => p.id));
+            const trulyNew = newPosts.filter((p: any) => !existingIds.has(p.id));
+            return [...trulyNew, ...prev];
+          });
+        })
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    });
+  }, []);
 
   const fetchMorePosts = async () => {
     if (isLoading || !hasMore) return;

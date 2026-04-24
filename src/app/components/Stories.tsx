@@ -36,12 +36,6 @@ const Stories = async () => {
             </span>
           </div>
         ))}
-        
-        {stories.length === 0 && (
-           <div className="flex items-center px-4 italic" style={{ color: "var(--text-tertiary)" }}>
-             No active stories. Share your impact!
-           </div>
-        )}
       </div>
     </div>
   );

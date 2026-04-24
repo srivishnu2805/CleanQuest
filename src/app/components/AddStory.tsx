@@ -1,28 +1,25 @@
 "use client";
 
 import { UploadButton } from "@/lib/uploadthing";
-import * as actions from "@/lib/actions";
+import { addStory } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const AddStory = () => {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
-  const addStoryAction = (actions as { addStory?: (url: string) => Promise<unknown> }).addStory;
 
   return (
     <div className="flex flex-col items-center gap-2 cursor-pointer group">
-      <div className="relative w-16 h-16 p-1 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center group-hover:border-green-500 transition overflow-hidden">
+      <div className="relative w-16 h-16 p-1 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center group-hover:border-emerald-500 transition overflow-hidden bg-gray-50 dark:bg-slate-800">
         {isUploading ? (
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-500"></div>
         ) : (
           <UploadButton
             endpoint="imageUploader"
             onUploadBegin={() => setIsUploading(true)}
             onClientUploadComplete={async (res) => {
-              if (addStoryAction) {
-                await addStoryAction(res[0].url);
-              }
+              await addStory(res[0].url);
               setIsUploading(false);
               router.refresh();
             }}
@@ -31,7 +28,7 @@ const AddStory = () => {
               setIsUploading(false);
             }}
             appearance={{
-              button: "bg-transparent text-gray-400 hover:text-green-500 border-none w-full h-full flex items-center justify-center text-2xl font-light",
+              button: "bg-transparent text-gray-400 hover:text-emerald-500 border-none w-full h-full flex items-center justify-center text-2xl font-light",
               allowedContent: "hidden"
             }}
             content={{
@@ -40,7 +37,9 @@ const AddStory = () => {
           />
         )}
       </div>
-      <span className="font-semibold text-gray-600">My Story</span>
+      <span className="font-semibold text-xs transition group-hover:text-emerald-500" style={{ color: "var(--text-secondary)" }}>
+        Add Story
+      </span>
     </div>
   );
 };

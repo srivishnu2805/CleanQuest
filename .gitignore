@@ -34,3 +34,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright E2E Tests
+test-results/
+playwright-report/
+playwright/.cache/
+
+# AI / Antigravity Implementation Plans
+DESIGN.md
+.gemini/
+.antigravity/
+*plan*.md
+*proposal*.md
+*optimization*.md

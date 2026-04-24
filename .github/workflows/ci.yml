@@ -1,0 +1,45 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: Run Build
+      run: npm run build
+      env:
+        # Dummy values to allow build to pass without real DB/Auth
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXktY2xlcmsta2V5
+        CLERK_SECRET_KEY: sk_test_dummy
+        NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
+        SUPABASE_SERVICE_ROLE_KEY: dummy
+        UPLOADTHING_TOKEN: dummy
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Run Playwright Tests
+      run: npx playwright test
+      env:
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXktY2xlcmsta2V5
+        CLERK_SECRET_KEY: sk_test_dummy
+        E2E_CLERK_USER_USERNAME: testuser
+        E2E_CLERK_USER_PASSWORD: password123!

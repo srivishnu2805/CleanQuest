@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
-import { addComment, getComments } from "@/lib/actions";
+import { addComment, getComments, toggleCommentLike } from "@/lib/actions";
 import { useUser } from "@clerk/nextjs";
 
 const Comments = ({ postId }: { postId: string }) => {
@@ -46,7 +46,8 @@ const Comments = ({ postId }: { postId: string }) => {
     }
   };
 
-  const handleLikeComment = (commentId: string) => {
+  const handleLikeComment = async (commentId: string) => {
+    // Optimistic update
     setLikedComments((prev) => {
       const next = new Set(prev);
       if (next.has(commentId)) {
@@ -56,6 +57,28 @@ const Comments = ({ postId }: { postId: string }) => {
       }
       return next;
     });
+
+    try {
+      const result = await toggleCommentLike(commentId);
+      // Revert if API failed or returned unexpected state
+      if (result.liked && !likedComments.has(commentId)) {
+         setLikedComments(prev => new Set(prev).add(commentId));
+      } else if (!result.liked && likedComments.has(commentId)) {
+          setLikedComments(prev => {
+              const next = new Set(prev);
+              next.delete(commentId);
+              return next;
+          });
+      }
+    } catch {
+      // Rollback on error
+      setLikedComments((prev) => {
+        const next = new Set(prev);
+        if (next.has(commentId)) next.delete(commentId);
+        else next.add(commentId);
+        return next;
+      });
+    }
   };
 
   const handleReport = (commentId: string) => {

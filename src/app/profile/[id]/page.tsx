@@ -10,6 +10,35 @@ import FeedSkeleton from "@/app/components/FeedSkeleton";
 import BadgeGrid from "@/app/components/BadgeGrid";
 import ProfileActions from "@/app/components/ProfileActions";
 
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const user = await getUserProfile(id);
+  
+  if (!user) {
+    return { title: "User Not Found | CleanQuest" };
+  }
+  
+  return {
+    title: `${user.displayName || user.username} (@${user.username}) | CleanQuest`,
+    description: user.description || `Check out ${user.displayName || user.username}'s campus sustainability impact on CleanQuest.`,
+    openGraph: {
+      title: `${user.displayName || user.username} (@${user.username}) | CleanQuest`,
+      description: user.description || `Check out ${user.displayName || user.username}'s campus sustainability impact on CleanQuest.`,
+      images: [
+        {
+          url: user.avatar || "/noAvatar.png",
+          width: 800,
+          height: 800,
+          alt: `${user.username}'s avatar`,
+        },
+      ],
+      type: "profile",
+    },
+  };
+}
+
 const ProfilePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   const { userId: currentUserId } = await auth();
@@ -40,14 +69,18 @@ const ProfilePage = async ({ params }: { params: Promise<{ id: string }> }) => {
                 alt=""
                 fill
                 className="rounded-2xl object-cover"
+                priority
+                sizes="(max-width: 1200px) 100vw, 800px"
               />
               <Image
                 src={user.avatar || "/noAvatar.png"}
                 alt=""
                 width={128}
                 height={128}
-                className="w-32 h-32 rounded-full absolute left-0 right-0 m-auto -bottom-16 ring-4 object-cover shadow-lg"
-                style={{ ringColor: "var(--bg-secondary)" }}
+                className="w-32 h-32 rounded-full absolute left-0 right-0 m-auto -bottom-16 object-cover shadow-lg"
+                style={{ boxShadow: "0 0 0 4px var(--bg-secondary)" }}
+                priority
+                sizes="128px"
               />
             </div>
             <div className="flex flex-col items-center mt-20 mb-4 w-full">

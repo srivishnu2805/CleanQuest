@@ -26,7 +26,7 @@ const MyPostsPage = async () => {
 
         <div className="flex flex-col gap-6">
           {posts.length > 0 ? (
-            posts.map((post) => <Post key={post.id} post={post} />)
+            posts.map((post: any) => <Post key={post.id} post={post} />)
           ) : (
             <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 text-gray-400 text-center">
                <p className="text-4xl mb-4">🌱</p>
