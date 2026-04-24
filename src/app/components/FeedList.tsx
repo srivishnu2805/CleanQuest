@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Post from "./Post";
 import { getPosts } from "@/lib/actions";
 
@@ -39,7 +39,7 @@ const FeedList = ({ initialPosts }: { initialPosts: any[] }) => {
     });
   }, []);
 
-  const fetchMorePosts = async () => {
+  const fetchMorePosts = useCallback(async () => {
     if (isLoading || !hasMore) return;
     setIsLoading(true);
     
@@ -56,7 +56,7 @@ const FeedList = ({ initialPosts }: { initialPosts: any[] }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [cursor, hasMore, isLoading]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -68,16 +68,13 @@ const FeedList = ({ initialPosts }: { initialPosts: any[] }) => {
       { threshold: 1.0 }
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    const target = observerTarget.current;
+    if (target) observer.observe(target);
 
     return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
-      }
+      if (target) observer.unobserve(target);
     };
-  }, [cursor, hasMore, isLoading]);
+  }, [fetchMorePosts, hasMore]);
 
   return (
     <div className="flex flex-col gap-4">

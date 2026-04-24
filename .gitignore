@@ -47,3 +47,6 @@ DESIGN.md
 *plan*.md
 *proposal*.md
 *optimization*.md
+
+# CI workflow file
+ci.yml

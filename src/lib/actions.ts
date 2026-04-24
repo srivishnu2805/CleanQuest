@@ -157,6 +157,11 @@ export const getPosts = async (cursor?: number) => {
   }));
 };
 
+export const getMediaPosts = async () => {
+  const posts = await getPosts();
+  return posts.filter((post: any) => Boolean(post?.img));
+};
+
 export const createPost = async (formData: any) => {
   const { userId } = await auth();
   if (!userId) return { success: false, error: "Unauthorized" };

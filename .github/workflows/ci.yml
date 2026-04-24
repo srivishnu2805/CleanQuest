@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - uses: actions/checkout@v4
@@ -33,6 +35,16 @@ jobs:
         SUPABASE_SERVICE_ROLE_KEY: dummy
         UPLOADTHING_TOKEN: dummy
 
+    - name: Run Lint
+      run: npm run lint
+      env:
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXktY2xlcmsta2V5
+        CLERK_SECRET_KEY: sk_test_dummy
+        NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
+        SUPABASE_SERVICE_ROLE_KEY: dummy
+        UPLOADTHING_TOKEN: dummy
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
@@ -41,5 +53,9 @@ jobs:
       env:
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXktY2xlcmsta2V5
         CLERK_SECRET_KEY: sk_test_dummy
-        E2E_CLERK_USER_USERNAME: testuser
-        E2E_CLERK_USER_PASSWORD: password123!
+        NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
+        SUPABASE_SERVICE_ROLE_KEY: dummy
+        UPLOADTHING_TOKEN: dummy
+        E2E_CLERK_USER_USERNAME: ${{ secrets.E2E_CLERK_USER_USERNAME }}
+        E2E_CLERK_USER_PASSWORD: ${{ secrets.E2E_CLERK_USER_PASSWORD }}
