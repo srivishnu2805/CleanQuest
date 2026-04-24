@@ -1,163 +1,157 @@
-# CleanQuest 🌿 | Full-Stack Gamified Campus Sustainability Platform
+# CleanQuest
 
 <div align="center">
 
+![CI Pipeline](https://github.com/srivishnu2805/CleanQuest/actions/workflows/ci.yml/badge.svg)
+![CodeQL](https://github.com/srivishnu2805/CleanQuest/actions/workflows/codeql.yml/badge.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)
-![Tailwind](https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=for-the-badge&logo=tailwindcss)
 ![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge&logo=clerk)
 
-**A production-ready, modern social platform that transforms individual sustainability actions into a collective campus movement through gamification, real-time analytics, and social engagement.**
+**A full-stack social platform that turns sustainability actions into measurable campus impact through gamification, real-time feeds, and analytics.**
 
-[Live Demo](#) · [Architecture](#-system-architecture) · [Features](#-feature-highlights) · [Setup](#%EF%B8%8F-production-ready-setup)
+[Live Demo](#) · [Tech Stack](#tech-stack) · [Architecture](#architecture) · [Setup](#local-setup)
 
 </div>
 
----
+## Recruiter Snapshot
 
-## 🎯 Project Overview
+CleanQuest is a production-style web application built to demonstrate senior-level full-stack engineering patterns in a real product scenario.
 
-CleanQuest is a **modern, impact-driven social ecosystem** purpose-built for university-scale sustainability initiatives. It combines a modern, responsive social feed with a **server-side gamification engine**, **achievement badge system**, and **real-time analytics dashboard** — all built with cutting-edge web technologies.
+### What this project demonstrates
+- End-to-end ownership across frontend, backend, database, auth, testing, and CI/CD.
+- Product thinking: engagement loops (stories, badges, leaderboard, streaks) tied to measurable impact outcomes.
+- Engineering depth: RLS security model, server-side gamification logic, ranked feed algorithm, and real-time updates.
+- Delivery rigor: typed APIs, validation, optimistic UI, E2E testing, and GitHub Actions quality gates.
 
-### Why This Project Stands Out (Senior-Level Features):
-- **Full-Stack Complexity**: 30+ React components, 20+ Server Actions, 12+ database tables
-- **Security First**: 100% Supabase Row Level Security (RLS) across all tables, preventing unauthorized mutations.
-- **Innovative Story System**: Dynamic story feed featuring high-impact "Community Spotlights" (Impact HQ & Global Quest) as fallback when user activity is low.
-- **Real-Time Data**: Implemented Supabase Realtime WebSockets for instant feed updates.
-- **Algorithmic Ranking**: Advanced PostgreSQL function `get_ranked_posts` calculating a "Hotness Score" based on engagement and time decay.
-- **Testing & CI/CD**: Playwright End-to-End (E2E) testing integrated with a GitHub Actions CI pipeline.
-- **Modern Social Graph**: Real follow/unfollow/block with suggested users feed.
-- **Production Patterns**: Request memoization, optimistic UI, infinite scroll, Zod validation.
-- **Gamification Engine**: Server-side point system with daily caps, 8 achievement badges, streak tracking.
+### Scope and complexity
+- 30+ React components
+- 20+ server actions
+- 12+ database tables with Supabase RLS policies
+- Real-time feed updates using Supabase channels
 
----
+## Product Overview
 
-## ✨ Feature Highlights
+CleanQuest is a campus-first sustainability social network where users post actions, earn points, unlock badges, and compete on impact leaderboards.
 
-### 🏠 Social Feed & Stories (Real-Time)
-- **Disappearing Stories**: 24-hour awareness updates with gradient ring indicators.
-- **Community Spotlights**: Professional fallback stories (Impact HQ & Global Quest) ensure the feed always looks active and inspiring.
-- **Infinite Scroll**: Seamless feed browsing with `IntersectionObserver` API.
-- **Optimistic Interactions**: Instant likes/follows with server-side persistence and rollback handling.
-- **Comment Threads**: Real-time comments with dedicated "Comment Likes" support.
-- **Image Uploads**: High-performance uploads via UploadThing with drag-and-drop support.
+Core value loop:
+1. Users share actions (posts, stories, comments).
+2. The gamification engine awards points with anti-abuse daily caps.
+3. Leaderboards and badges increase retention and social motivation.
+4. Dashboard visualizes personal and collective environmental impact.
 
-### 👥 Social Graph
-- **Follow/Unfollow**: Real database-backed follow system with optimistic UI.
-- **Block/Unblock**: Blocks hide posts from feed + mutual unfollow.
-- **Suggested Users**: Intelligent suggestions (users you don't follow yet, sorted by impact).
-- **Profile Actions**: Follow/Block/Report buttons on every profile.
+## Feature Highlights
 
-### 📊 Analytics Dashboard (`/dashboard`)
-- **Impact Stats**: Real-time tracking of CO₂ offset, actions taken, and progress toward campus goals.
-- **Activity Visualization**: CSS-only animated stacked bar charts showing weekly engagement across posts, likes, and comments.
-- **Streak Tracker**: Gamified visualization of consecutive active days.
-- **Impact Leaderboard**: Live ranking of top sustainability contributors.
+### Social feed and engagement
+- Real-time post updates via Supabase Realtime.
+- Infinite scrolling feed using IntersectionObserver.
+- Story system with 24-hour lifecycle.
+- Optimistic UI for likes, follows, and social interactions.
+- Comment likes and saved posts persistence.
 
-### 🏅 Achievement Badge System
-8 badges across 4 tiers (Bronze → Platinum), calculated server-side:
+### Social graph and safety
+- Follow and unfollow with real database state.
+- Block and unblock flow with feed filtering.
+- Suggested users ranked by impact signals.
 
-| Badge | Requirement | Tier |
-| :--- | :--- | :--- |
-| 🌱 First Step | Create 1 post | Bronze |
-| 💯 Century Mark | 100 impact points | Bronze |
-| 🌿 Consistent Contributor | 10 posts | Silver |
-| 🦋 Social Butterfly | 25 comments | Silver |
-| ⚡ Impact Leader | 500 points | Silver |
-| 🌳 Eco Champion | 50 posts | Gold |
-| 🏆 Sustainability Legend | 1,000 points | Gold |
-| 🥇 Podium Finish | Top 3 leaderboard | Platinum |
+### Gamification and analytics
+- Server-side points engine with daily caps.
+- 8-badge achievement system across Bronze to Platinum tiers.
+- Streak tracking and activity analytics.
+- Live leaderboard for top contributors.
 
-### 🎮 Gamification Engine
-Server-side point system with anti-gaming daily caps:
+## Tech Stack
 
-| Action | Points | Daily Cap |
-| :--- | :--- | :--- |
-| New Post | 10 pts | 3/day (max 30) |
-| New Story | 5 pts | 2/day (max 10) |
-| Comment | 2 pts | 5/day (max 10) |
-| Follow | 1 pt | 3/day (max 3) |
+- Frontend: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS
+- Backend: Next.js Server Actions, Zod validation
+- Data: Supabase PostgreSQL, SQL functions, RLS policies
+- Auth: Clerk
+- File upload: UploadThing
+- Testing: Playwright E2E
+- CI/CD: GitHub Actions (CI Pipeline + CodeQL)
 
----
+## Architecture
 
-## 🏗️ System Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                    Client Layer                      │
-│  Next.js 15 App Router + React 19 + Tailwind CSS    │
-│  ┌──────────┐ ┌──────────┐ ┌───────────────┐       │
-│  │   Feed   │ │Dashboard │ │   Profile +   │       │
-│  │(Infinite │ │(Charts + │ │  Follow/Block │       │
-│  │ Scroll)  │ │ Badges)  │ │   Actions     │       │
-│  └──────────┘ └──────────┘ └───────────────┘       │
-├─────────────────────────────────────────────────────┤
-│                   Server Layer                       │
-│  Next.js Server Actions + Request Memoization        │
-│  ┌──────────┐ ┌──────────┐ ┌───────────────┐       │
-│  │  Zod     │ │ Gamifi-  │ │  Social Graph │       │
-│  │Validation│ │ cation   │ │  (Follow /    │       │
-│  │ Schemas  │ │  Engine  │ │  Block / Rec) │       │
-│  └──────────┘ └──────────┘ └───────────────┘       │
-├─────────────────────────────────────────────────────┤
-│                   Data Layer                         │
-│  ┌───────────────────┐  ┌──────────────────┐        │
-│  │     Supabase      │  │   UploadThing    │        │
-│  │   (PostgreSQL)    │  │ (File Storage)   │        │
-│  │  - users          │  └──────────────────┘        │
-│  │  - posts          │  ┌──────────────────┐        │
-│  │  - comments       │  │      Clerk       │        │
-│  │  - post_likes     │  │ (Authentication) │        │
-│  │  - user_follows   │  │ - OAuth / Email  │        │
-│  │  - user_blocks    │  │ - User Sync      │        │
-│  │  - stories        │  └──────────────────┘        │
-│  └───────────────────┘                              │
-└─────────────────────────────────────────────────────┘
+```text
+Client (Next.js + React)
+	-> Server Actions (validation, orchestration, caching)
+		-> Supabase (PostgreSQL + RLS + SQL ranking functions)
+		-> Clerk (authentication and user sync)
+		-> UploadThing (media storage)
 ```
 
----
+### Notable backend patterns
+- `get_ranked_posts` SQL function for engagement + recency ranking.
+- Request memoization for expensive profile/dashboard reads.
+- Explicit normalization layer for API response shaping.
+- Security-first data access through RLS and server-side auth checks.
 
-## 🛠️ Production-Ready Setup
+## Key Engineering Decisions
 
-### 1. Environment Configuration
-Create a `.env.local` file:
+- Server-side gamification rules prevent easy client-side abuse.
+- RLS-first schema design keeps authorization close to data.
+- Optimistic UI keeps UX fast while preserving data integrity.
+- Fallback stories keep the product experience alive for new/low-activity cohorts.
+
+## Local Setup
+
+### 1. Configure environment
+Create `.env.local`:
+
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
 UPLOADTHING_TOKEN=...
 ```
 
-### 2. Database Schema
-Comprehensive SQL schemas for tables, RLS policies, and ranked feed functions are located in the `supabase/` directory.
+### 2. Install and run
 
-### 3. Install & Run
 ```bash
 npm install
 npm run dev
-# → http://localhost:3000
 ```
 
----
+Open http://localhost:3000
 
-## 🔑 Key Server Actions
+### 3. Validate quality
 
-| Action | Description |
+```bash
+npm run lint
+npm run build
+npx playwright test
+```
+
+## Database and SQL
+
+The `supabase/` directory includes:
+- RLS policies
+- ranked feed SQL function
+- comment likes and saved posts schema scripts
+
+## Selected Server Actions
+
+| Action | Purpose |
 | :--- | :--- |
-| `getStories` | Fetches active user stories or innovative "Community Spotlights" |
-| `addStory` | Creates a new 24h story and awards points |
-| `getUserDashboardStats` | Aggregates impact analytics with high-concurrency parallel queries |
-| `getPosts` | High-performance feed fetching with block-filtering |
-| `toggleCommentLike` | Dedicated database persistence for comment engagement |
+| `getPosts` | Ranked feed fetch with block filtering and interaction metadata |
+| `getUserDashboardStats` | Aggregates analytics and leaderboard metrics |
+| `toggleFollow` | Follows/unfollows with social notification behavior |
+| `toggleCommentLike` | Persists comment reaction state |
+| `addStory` | Creates a 24-hour story and awards points |
+
+## Experienced Engineer Pitch
+
+Designed and shipped a production-style social platform with a server-driven gamification engine, secure RLS data model, ranked feed algorithm, and real-time engagement system. Owned architecture across frontend, backend, SQL, auth, and CI/CD, with quality gates enforced through automated lint/build/test pipelines and code scanning.
+
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for a greener campus.**
+Built for impact, shipped with production discipline.
 
 </div>
