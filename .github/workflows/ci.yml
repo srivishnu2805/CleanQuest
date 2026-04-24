@@ -28,7 +28,7 @@ jobs:
       run: npm run build
       env:
         # Dummy values to allow build to pass without real DB/Auth
-        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXktY2xlcmsta2V5
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
         CLERK_SECRET_KEY: sk_test_dummy
         NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
         NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
@@ -38,7 +38,7 @@ jobs:
     - name: Run Lint
       run: npm run lint
       env:
-        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXktY2xlcmsta2V5
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
         CLERK_SECRET_KEY: sk_test_dummy
         NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
         NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
@@ -51,7 +51,7 @@ jobs:
     - name: Run Playwright Tests
       run: npx playwright test
       env:
-        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZHVtbXktY2xlcmsta2V5
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
         CLERK_SECRET_KEY: sk_test_dummy
         NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
         NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
