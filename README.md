@@ -19,7 +19,7 @@
 
 ## 🎯 Project Overview
 
-CleanQuest is an **advanced social media platform** purpose-built for university-scale sustainability initiatives. It combines a modern, responsive social feed with a **server-side gamification engine**, **achievement badge system**, **real-time analytics dashboard**, and **robust social features** (follow/unfollow/block) — all built with cutting-edge web technologies.
+CleanQuest is an **Instagram-inspired social media platform** purpose-built for university-scale sustainability initiatives. It combines a modern, responsive social feed with a **server-side gamification engine**, **achievement badge system**, and **real-time analytics dashboard** — all built with cutting-edge web technologies.
 
 ### Why This Project Stands Out (Senior-Level Features):
 - **Full-Stack Complexity**: 30+ React components, 20+ Server Actions, 12+ database tables
