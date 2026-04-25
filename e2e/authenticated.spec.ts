@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 const CLERK_USERNAME = process.env.E2E_CLERK_USER_USERNAME || 'test_user';
 const CLERK_PASSWORD = process.env.E2E_CLERK_USER_PASSWORD || 'password123!';
@@ -6,8 +6,10 @@ const HAS_E2E_CREDENTIALS =
   Boolean(process.env.E2E_CLERK_USER_USERNAME) &&
   Boolean(process.env.E2E_CLERK_USER_PASSWORD);
 
+const DEFAULT_TIMEOUT = 15000;
+
 // Reusable login helper
-const login = async (page: any) => {
+const login = async (page: Page) => {
   await page.goto('/sign-in');
   await page.waitForSelector('input[name="identifier"]');
   await page.fill('input[name="identifier"]', CLERK_USERNAME);
@@ -15,7 +17,8 @@ const login = async (page: any) => {
   await page.waitForSelector('input[name="password"]');
   await page.fill('input[name="password"]', CLERK_PASSWORD);
   await page.click('button:has-text("Continue")');
-  await page.waitForURL('**/');
+  // Wait for redirect to the root page after successful login
+  await page.waitForURL(/^http:\/\/localhost:\d+\/?$/);
 };
 
 test.describe('Authenticated Page Features', () => {
@@ -27,44 +30,44 @@ test.describe('Authenticated Page Features', () => {
   // --- d. Dashboard ---
   test('d. Dashboard page shows "Impact Dashboard" heading', async ({ page }) => {
     await page.goto('/dashboard');
-    await expect(page.locator('text="Impact Dashboard"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Impact Dashboard"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('d. Dashboard page shows stat cards (Total Posts, Comments, Impact Points, Day Streak)', async ({ page }) => {
     await page.goto('/dashboard');
-    await expect(page.locator('text="Total Posts"')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('text="Comments"')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('text="Impact Points"')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('text="Day Streak"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Total Posts"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('text="Comments"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('text="Impact Points"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('text="Day Streak"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('d. Dashboard page shows Achievement Badges section', async ({ page }) => {
     await page.goto('/dashboard');
-    await expect(page.locator('text="Achievement Badges"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Achievement Badges"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('d. Dashboard page shows Your Impact Summary section', async ({ page }) => {
     await page.goto('/dashboard');
-    await expect(page.locator('text="Your Impact Summary"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Your Impact Summary"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   // --- e. Leaderboard ---
   test('e. Leaderboard page shows Top Contributors heading', async ({ page }) => {
     await page.goto('/leaderboard');
-    await expect(page.locator('text="Top Contributors"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Top Contributors"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('e. Leaderboard page shows Rank, User and Impact Points columns', async ({ page }) => {
     await page.goto('/leaderboard');
-    await expect(page.locator('th:has-text("Rank")')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('th:has-text("User")')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('th:has-text("Impact Points")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('th:has-text("Rank")')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('th:has-text("User")')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('th:has-text("Impact Points")')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   // --- f. Events ---
   test('f. Events page shows "Campus Events" heading', async ({ page }) => {
     await page.goto('/events');
-    await expect(page.locator('text="Campus Events"')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text="Campus Events"')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('f. Events page shows either event cards or the empty-state message', async ({ page }) => {
@@ -74,47 +77,47 @@ test.describe('Authenticated Page Features', () => {
       // Empty state: "No upcoming events. Check back soon!"
       await expect(
         page.locator('text="No upcoming events. Check back soon!"')
-      ).toBeVisible({ timeout: 15000 });
+      ).toBeVisible({ timeout: DEFAULT_TIMEOUT });
     }
   });
 
   // --- g. Notifications ---
   test('g. Notifications page shows "Notifications" heading', async ({ page }) => {
     await page.goto('/notifications');
-    await expect(page.locator('h1:has-text("Notifications")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('h1:has-text("Notifications")')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('g. Notifications page shows notifications or empty-state message', async ({ page }) => {
     await page.goto('/notifications');
     const hasNotifications = await page.locator('.notification-item').count();
     if (hasNotifications === 0) {
-      await expect(page.locator('text="No new notifications yet."')).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('text="No new notifications yet."')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
     }
   });
 
   // --- h. Friends / Discover People ---
   test('h. Friends page shows "Discover People" heading', async ({ page }) => {
     await page.goto('/friends');
-    await expect(page.locator('h1:has-text("Discover People")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('h1:has-text("Discover People")')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   // --- i. Settings ---
   test('i. Settings page shows "Account Settings" heading', async ({ page }) => {
     await page.goto('/settings');
-    await expect(page.locator('h1:has-text("Account Settings")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('h1:has-text("Account Settings")')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('i. Settings page has Display Name, Bio, School and Work fields', async ({ page }) => {
     await page.goto('/settings');
-    await expect(page.locator('input[name="displayName"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('textarea[name="description"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('input[name="school"]')).toBeVisible({ timeout: 15000 });
-    await expect(page.locator('input[name="work"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('input[name="displayName"]')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('textarea[name="description"]')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('input[name="school"]')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
+    await expect(page.locator('input[name="work"]')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   test('i. Settings page has Save Changes button', async ({ page }) => {
     await page.goto('/settings');
-    await expect(page.locator('button:has-text("Save Changes")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('button:has-text("Save Changes")')).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 
   // --- j. Home feed interaction: like a post ---
@@ -171,6 +174,6 @@ test.describe('Authenticated Page Features', () => {
   test('m. Authenticated user sees a profile link in the navbar', async ({ page }) => {
     await page.goto('/');
     const profileLink = page.locator('a[href^="/profile/"]');
-    await expect(profileLink.first()).toBeVisible({ timeout: 15000 });
+    await expect(profileLink.first()).toBeVisible({ timeout: DEFAULT_TIMEOUT });
   });
 });
