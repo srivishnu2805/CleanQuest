@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { createPost } from "@/lib/actions";
 import { useUser } from "@clerk/nextjs";
@@ -13,8 +14,21 @@ const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   const [dragActive, setDragActive] = useState(false);
   const [step, setStep] = useState<"upload" | "caption">("upload");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -51,10 +65,10 @@ const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/70 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" onClick={handleClose}>
+  return createPortal(
+    <div className="fixed top-0 left-0 w-screen h-screen bg-black/70 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm" onClick={handleClose}>
       <div
-        className="rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in-scale"
+        className="rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-y-auto shadow-2xl animate-fade-in-scale relative"
         style={{ backgroundColor: "var(--bg-secondary)", border: "1px solid var(--border-color)" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -186,7 +200,8 @@ const CreatePostModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

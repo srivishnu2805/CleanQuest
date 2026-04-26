@@ -16,8 +16,10 @@ const FeedList = ({ initialPosts }: { initialPosts: any[] }) => {
     import('@/lib/supabase').then(({ supabase }) => {
       if (!supabase) return;
       
+      // Use a truly unique channel name to prevent Strict Mode from reusing a channel created in the same millisecond
+      const channelName = `posts_feed_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       const channel = supabase
-        .channel(`posts_feed_${Date.now()}`)
+        .channel(channelName)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, async (payload: any) => {
           // A new post was created! We could fetch the full post details here and unshift it
           // For a simple UX, we show a "New posts available" toast or just fetch the newest post
