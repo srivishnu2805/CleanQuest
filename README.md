@@ -76,11 +76,20 @@ Core value loop:
 
 ```text
 Client (Next.js + React)
-	-> Server Actions (validation, orchestration, caching)
-		-> Supabase (PostgreSQL + RLS + SQL ranking functions)
-		-> Clerk (authentication and user sync)
-		-> UploadThing (media storage)
+	-> Edge Middleware (Token Bucket Rate Limiting)
+		-> Server Actions (Event-driven background tasks, unstable_cache)
+			-> Supabase (PostgreSQL + RLS + Full Text Search)
+			-> Supabase Read Replicas (CQRS pattern for feeds/leaderboards)
+			-> Clerk (authentication and user sync)
+			-> UploadThing (media storage)
 ```
+
+### Advanced System Design Implementations
+- **Event-Driven Gamification:** Utilizes Next.js 15 `unstable_after` to decouple points calculation and notifications from the request lifecycle, ensuring instant UI responses.
+- **Distributed Data Caching:** Aggressive server-side caching (`unstable_cache`) for heavy read queries (Live Leaderboard, Campus Stats) to minimize database load.
+- **CQRS / Read Replicas Pattern:** Abstracted database clients routing read queries to replicas and write queries to the primary database, ensuring high availability under read-heavy social loads.
+- **Edge Computing Security:** In-memory Token Bucket rate limiter implemented at the Next.js Middleware edge to prevent gamification abuse and DDoS attacks.
+- **Advanced Search Indexing:** Replaced slow SQL `ILIKE` scans with Postgres native Full-Text Search (`textSearch`) for high-performance user discovery.
 
 ### Notable backend patterns
 - `get_ranked_posts` SQL function for engagement + recency ranking.
@@ -90,6 +99,7 @@ Client (Next.js + React)
 
 ## Key Engineering Decisions
 
+- **Performance first:** Background processing ensures users aren't waiting on the gamification engine to tally points before a post succeeds.
 - Server-side gamification rules prevent easy client-side abuse.
 - RLS-first schema design keeps authorization close to data.
 - Optimistic UI keeps UX fast while preserving data integrity.
@@ -145,7 +155,7 @@ The `supabase/` directory includes:
 
 ## Experienced Engineer Pitch
 
-Designed and shipped a production-style social platform with a server-driven gamification engine, secure RLS data model, ranked feed algorithm, and real-time engagement system. Owned architecture across frontend, backend, SQL, auth, and CI/CD, with quality gates enforced through automated lint/build/test pipelines and code scanning.
+Designed and shipped a highly scalable social platform mirroring enterprise-level system design. Engineered an **event-driven architecture** decoupling the gamification engine from core request lifecycles to reduce write latency. Implemented a **distributed caching layer** to offload heavy SQL aggregations and introduced a **CQRS read-replica pattern** to handle high-throughput feeds. Secured the platform against API abuse via **Edge-level Token Bucket rate limiting**, alongside a secure RLS data model and real-time engagement system. Owned architecture across frontend, backend, SQL, auth, and CI/CD.
 
 
 ---

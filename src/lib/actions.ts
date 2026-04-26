@@ -2,7 +2,8 @@
 
 import { getSupabaseAdmin } from "./supabase";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache } from "next/cache";
+import { unstable_after as after } from "next/server";
 import { z } from "zod";
 import { POINT_SYSTEM, BADGES } from "./constants";
 import { cache } from "react";
@@ -79,8 +80,8 @@ export const getUserProfile = cache(async (clerkId: string) => {
 /**
  * Optimized getCampusStats with memoization and single-row retrieval.
  */
-export const getCampusStats = cache(async () => {
-  const supabase = getSupabaseAdmin();
+export const getCampusStats = unstable_cache(async () => {
+  const supabase = getSupabaseAdmin('read');
   const { data: userStats } = await supabase.from("users").select("points");
   const totalPoints = userStats?.reduce((sum: number, u: any) => sum + (u.points || 0), 0) || 0;
   const totalActions = totalPoints / 5; 
@@ -89,11 +90,11 @@ export const getCampusStats = cache(async () => {
     co2Offset: parseFloat((totalActions * 0.8).toFixed(1)),
     progress: Math.min(Math.round((totalActions / 1000) * 100), 100)
   };
-});
+}, ['campus-stats-cache'], { revalidate: 300 });
 
 export const getPosts = async (cursor?: number) => {
   const { userId: currentUserId } = await auth();
-  const supabase = getSupabaseAdmin();
+  const supabase = getSupabaseAdmin('read');
   const PAGE_SIZE = 5;
 
   let blockedUserIds: string[] = [];
@@ -170,7 +171,12 @@ export const createPost = async (formData: any) => {
   const supabase = getSupabaseAdmin();
   const { error } = await supabase.from("posts").insert({ user_id: userId, desc: validatedFields.data.desc, img: validatedFields.data.img || null });
   if (error) return { success: false, error: error.message };
-  await awardPoints(userId, "POST");
+  
+  // Event-Driven Architecture Concept (runs after response is sent)
+  after(async () => {
+    await awardPoints(userId, "POST");
+  });
+  
   revalidatePath("/");
   return { success: true };
 };
@@ -198,9 +204,14 @@ export const addComment = async (postId: string, desc: string) => {
   if (!userId) return { success: false, error: "Unauthorized" };
   const supabase = getSupabaseAdmin();
   await supabase.from("comments").insert({ post_id: postId, user_id: userId, desc });
-  const { data: post } = await supabase.from("posts").select("user_id").eq("id", postId).single();
-  if (post) await createNotification(post.user_id, "commented on your post");
-  await awardPoints(userId, "COMMENT");
+  
+  // Event-Driven Architecture Concept
+  after(async () => {
+    const { data: post } = await getSupabaseAdmin('read').from("posts").select("user_id").eq("id", postId).single();
+    if (post) await createNotification(post.user_id, "commented on your post");
+    await awardPoints(userId, "COMMENT");
+  });
+  
   revalidatePath("/");
   return { success: true };
 };
@@ -265,16 +276,28 @@ export const getComments = async (postId: string) => {
   }));
 };
 
-export const getLeaderboard = async () => {
-  const supabase = getSupabaseAdmin();
+export const getLeaderboard = unstable_cache(async () => {
+  const supabase = getSupabaseAdmin('read');
   const { data } = await supabase.from("users").select("*").order("points", { ascending: false }).limit(10);
   return (data || []).map(normalizeUser);
-};
+}, ['leaderboard-cache'], { revalidate: 60 });
 
 export const searchUsers = async (query: string) => {
   if (!query) return [];
-  const supabase = getSupabaseAdmin();
-  const { data } = await supabase.from("users").select("*").or(`username.ilike.%${query}%,display_name.ilike.%${query}%`).limit(5);
+  const supabase = getSupabaseAdmin('read');
+  
+  // Advanced Search Indexing concept (Postgres Full Text Search)
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .textSearch('display_name', query, { type: 'websearch' })
+    .limit(5);
+
+  if (!data || data.length === 0) {
+    const { data: fallback } = await supabase.from("users").select("*").or(`username.ilike.%${query}%,display_name.ilike.%${query}%`).limit(5);
+    return (fallback || []).map(normalizeUser);
+  }
+  
   return (data || []).map(normalizeUser);
 };
 
@@ -327,7 +350,12 @@ export const addStory = async (img: string) => {
   const supabase = getSupabaseAdmin();
   const { error } = await supabase.from("stories").insert({ user_id: userId, img });
   if (error) return { success: false, error: error.message };
-  await awardPoints(userId, "STORY");
+  
+  // Event-Driven Architecture Concept
+  after(async () => {
+    await awardPoints(userId, "STORY");
+  });
+  
   revalidatePath("/");
   return { success: true };
 };

@@ -11,6 +11,7 @@ if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
 // Singletons to prevent connection overhead
 let supabaseInstance: SupabaseClient | null = null;
 let supabaseAdminInstance: SupabaseClient | null = null;
+let supabaseReadInstance: SupabaseClient | null = null;
 
 // Client for use in Browser/Client Components
 export const supabase = (supabaseUrl && supabaseAnonKey)
@@ -18,7 +19,7 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
   : (null as any);
 
 // Client for use in Server Actions/Server Components (bypasses RLS)
-export const getSupabaseAdmin = () => {
+export const getSupabaseAdmin = (role: 'read' | 'write' = 'write') => {
   if (!supabaseUrl || !serviceRoleKey) {
     console.error("❌ ERROR: Supabase Admin configuration missing.");
     return {
@@ -28,6 +29,17 @@ export const getSupabaseAdmin = () => {
         update: () => ({ eq: () => Promise.resolve({ data: null, error: new Error("Missing config") }) }),
       })
     } as any;
+  }
+
+  // CQRS / Database Scaling Pattern: Route to Read Replica if role is 'read'
+  if (role === 'read') {
+    const readUrl = process.env.NEXT_PUBLIC_SUPABASE_READ_URL || supabaseUrl;
+    return (supabaseReadInstance ??= createClient(readUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }));
   }
 
   return (supabaseAdminInstance ??= createClient(supabaseUrl, serviceRoleKey, {
