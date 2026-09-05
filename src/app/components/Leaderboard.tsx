@@ -6,7 +6,7 @@ const Leaderboard = async () => {
   const leaderboardData = await getLeaderboard() as any[];
 
   return (
-    <div className="p-2">
+    <div className="pr-2 pl-0">
       <h2 className="text-xl font-bold mb-6 flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
         <span className="p-2 bg-yellow-100 rounded-lg text-lg">🏆</span>
         Top Contributors
